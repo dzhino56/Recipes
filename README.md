@@ -46,6 +46,7 @@ Subsequent response definitions will only detail the expected value of the 'data
 ]
 '''
 
+
 ### Creating a new recipe
 
 **Definition**
@@ -65,24 +66,16 @@ Subsequent response definitions will only detail the expected value of the 'data
 
 - '201 CREATED' on success
 
-'''json
-{
-    "recipe_id": "1",
-    "author": "1",
-    "datetime": "2021-03-28 19:16:59.729997",
-    "recipe_name": "boiled eggs",
-    "info": "really tasty boiled eggs",
-    "food_type": "second course",
-    "likes_count": "100",
-    "hashtag_set": "egg, water"
-}
-'''
 
 ### Lookup recipe details
 
 **Definition**
 
-'GET /recipes/<recipe_id>'
+'GET /recipes/recipe'
+
+**Arguments**
+
+- '"recipe_id": int' unique identifier of recipe
 
 **Response**
 
@@ -103,6 +96,7 @@ Subsequent response definitions will only detail the expected value of the 'data
     "status": "True"
 }
 '''
+
 
 ### Block recipe
 
@@ -117,22 +111,8 @@ Subsequent response definitions will only detail the expected value of the 'data
 **Response**
 
 - '404 Not Found' if the recipe does not exist
-- '200 OK' on success
+- '204 No Content' on success
 
-'''json
-{
-    "recipe_id": "1",
-    "author": "1",
-    "datetime": "2021-03-28 19:16:59.729997",
-    "recipe_name": "boiled eggs",
-    "info": "really tasty boiled eggs",
-    "cooking_steps": "Pour oil on pan, Heat up pan, Break two eggs up on pan, Add salt and pepper",
-    "food_type": "second course",
-    "likes_count": "100",
-    "hashtag_set": "egg, water"
-    "status": "False"
-}
-'''
 
 ### Unblock recipe
 
@@ -147,22 +127,8 @@ Subsequent response definitions will only detail the expected value of the 'data
 **Response**
 
 - '404 Not Found' if the recipe does not exist
-- '200 OK' on success
+- '204 No Content' on success
 
-'''json
-{
-    "recipe_id": "1",
-    "author": "1",
-    "datetime": "2021-03-28 19:16:59.729997",
-    "recipe_name": "boiled eggs",
-    "info": "really tasty boiled eggs",
-    "cooking_steps": "Pour oil on pan, Heat up pan, Break two eggs up on pan, Add salt and pepper",
-    "food_type": "second course",
-    "likes_count": "100",
-    "hashtag_set": "egg, water"
-    "status": "True"
-}
-'''
 
 ### Block User
 
@@ -177,16 +143,8 @@ Subsequent response definitions will only detail the expected value of the 'data
 **Response**
 
 - '404 Not Found' if the user does not exist
-- '200 OK' on success
+- '204 No Content' on success
 
-'''json
-{
-    "user_id": "1",
-    "nickname": "John",
-    "status": "False",
-    "favourite": "fried eggs, boiled eggs")
-}
-'''
 
 ### Unblock User
 
@@ -201,22 +159,18 @@ Subsequent response definitions will only detail the expected value of the 'data
 **Response**
 
 - '404 Not Found' if the user does not exist
-- '200 OK' on success
+- '204 No Content' on success
 
-'''json
-{
-    "user_id": "1",
-    "nickname": "John",
-    "status": "True",
-    "favourite": "fried eggs, boiled eggs")
-}
-'''
 
 ### Lookup details user profile
 
 **Definition**
 
-'GET /users/<user_id>'
+'GET /users/user'
+
+**Arguments**
+
+- '"user_id": int' unique identifier of user
 
 **Response**
 
@@ -237,10 +191,6 @@ Subsequent response definitions will only detail the expected value of the 'data
 **Definition**
 
 'GET /users'
-
-**Arguments**
-
-- '"user_id": int' unique identifier of user
 
 **Response**
 
@@ -276,15 +226,8 @@ Subsequent response definitions will only detail the expected value of the 'data
 **Response**
 
 - '201 Created' on success
+- '409 Conflict' if nickname exists in database
 
-'''json
-{
-    "user_id": "1",
-    "nickname": "John",
-    "status": "True",
-    "favourite": "fried eggs, boiled eggs")
-}
-'''
 
 
 
