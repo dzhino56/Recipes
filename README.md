@@ -1,5 +1,12 @@
 # Recipe Service
 
+## Information
+
+Programming language: Python 3.7
+Database: PostgreSQL 13
+ORM: SQLAlchemy with asyncpg for multithreading
+
+
 ## Usage
 
 All responses will have the form 
