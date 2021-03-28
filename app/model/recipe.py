@@ -25,7 +25,7 @@ recipe = Table(
     Column('cooking_steps', String),
     Column('photo', ),  # ???????????????????????????
     Column('food_type', String),
-    Column('likes_count', Integer),
+    Column('likes_count', Integer, default=0),
     Column('hashtag_set', String),
-    Column('status', Boolean)
+    Column('status', Boolean, default=True)
 )
