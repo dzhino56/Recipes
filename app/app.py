@@ -1,4 +1,5 @@
 import asyncpgsa
+import aiohttp_session
 from aiohttp import web
 from sqlalchemy.schema import DropTable
 from sqlalchemy.schema import CreateTable
@@ -11,6 +12,7 @@ async def create_app(config: dict):
     app = web.Application()
     app['config'] = config
     setup_routes(app)
+    aiohttp_session.setup(app, aiohttp_session.SimpleCookieStorage())
     app.on_startup.append(on_start)
     app.on_cleanup.append(on_finish)
     return app
