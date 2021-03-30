@@ -1,3 +1,4 @@
+import aiohttp_session
 from aiohttp import web
 from sqlalchemy import func
 from sqlalchemy.sql.expression import select
@@ -12,11 +13,24 @@ async def index(request):
     return web.Response(text=str(site_name))
 
 
+async def login(request):
+    session = await aiohttp_session.new_session(request)
+    form = await request.post()
+    session["username"] = form['login']
+    return web.Response(text=session["username"])
+
+
+async def logout(request: web.Request):
+    session = await aiohttp_session.get_session(request)
+    session.invalidate()
+    return web.Response(text='you logged out')
+
+
 async def get_user_profile(request):  # TODO: Доделать показ профиля пользователя
     user_id = request.query['user_id']
 
     async with request.app['db'].acquire() as conn:
-        query = select([db.user.c.user_id, db.user.c.nickname, db.user.c.status])\
+        query = select([db.user.c.user_id, db.user.c.nickname, db.user.c.status]) \
             .where(db.user.c.user_id == user_id)
         result = await conn.fetchrow(query)
         if result is not None:
@@ -43,10 +57,6 @@ async def registration(request):
             await conn.execute(query)
             return {"message": "User was created successfully"}, 201
         return {"message": "Such user exists"}, 409
-
-
-async def enter(request):
-    pass
 
 
 async def go_away(request):
@@ -103,7 +113,7 @@ async def get_recipe(request):  # TODO: Добавить данные польз
 async def block_recipe(request):
     async with request.app['db'].acquire() as conn:
         recipe_id = request.query['recipe']
-        query = select(db.recipe)\
+        query = select(db.recipe) \
             .where(db.recipe.c.recipe_id == recipe_id)
         result = await conn.fetchrow(query)
         if result is not None:

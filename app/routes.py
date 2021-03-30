@@ -10,6 +10,8 @@ def setup_routes(app):
                            web.get('/users/user', frontend.get_user_profile),
                            web.get('/users', frontend.get_first_ten_users),
                            web.post('/users', frontend.registration),
+                           web.post('/login', frontend.login),
+                           web.get('/logout', frontend.logout),
 
                            web.get('/recipes/recipe', frontend.get_recipe),
                            web.put('/recipes/block_recipe', frontend.block_recipe),
