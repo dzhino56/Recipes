@@ -37,7 +37,10 @@ async def prepare_tables(app):
 async def on_start(app):
     config = app['config']
     app['db'] = await asyncpgsa.create_pool(dsn=config['DATABASE_URI'])
-    # await prepare_tables(app)
+    app['admin'] = (config['ADMIN'].split(' '))
+    for i in app['admin']:
+        print(i)
+    print(len(app['admin']))
 
 
 async def on_finish(app):
