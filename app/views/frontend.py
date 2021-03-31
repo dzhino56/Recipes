@@ -158,23 +158,26 @@ async def block_recipe(request):
     session = await aiohttp_session.get_session(request)
 
     if 'username' in session:
-        async with request.app['db'].acquire() as conn:
-            form = await request.post()
-            recipe_id = form['recipe']
+        if is_admin(request, session.get('username')):
+            async with request.app['db'].acquire() as conn:
+                form = await request.post()
+                recipe_id = form['recipe']
 
-            query = select(db.recipe) \
-                .where(db.recipe.c.recipe_id == recipe_id)
-            result = await conn.fetchrow(query)
+                query = select(db.recipe) \
+                    .where(db.recipe.c.recipe_id == recipe_id)
+                result = await conn.fetchrow(query)
 
-            if result is not None:
-                query = update(db.recipe). \
-                    values({'status': 'False'}). \
-                    where(db.recipe.c.recipe_id == recipe_id)
-                result = await conn.fetch(query)
+                if result is not None:
+                    query = update(db.recipe). \
+                        values({'status': 'False'}). \
+                        where(db.recipe.c.recipe_id == recipe_id)
+                    result = await conn.fetch(query)
 
-                return {"message": "success"}, 204
-            else:
-                return {"message": "There is not recipe with such id"}, 404
+                    return {"message": "success"}, 204
+                else:
+                    return {"message": "There is not recipe with such id"}, 404
+        else:
+            return {"message": "only admin can do this"},
     else:
         return {"message": "You need login before this"}, 405
 
@@ -183,23 +186,27 @@ async def unblock_recipe(request):
     session = await aiohttp_session.get_session(request)
 
     if 'username' in session:
-        async with request.app['db'].acquire() as conn:
-            form = await request.post()
-            recipe_id = form['recipe']
+        if is_admin(request, session.get('username')):
 
-            query = select(db.recipe) \
-                .where(db.recipe.c.recipe_id == recipe_id)
-            result = await conn.fetchrow(query)
+            async with request.app['db'].acquire() as conn:
+                form = await request.post()
+                recipe_id = form['recipe']
 
-            if result is not None:
-                query = update(db.recipe). \
-                    values({'status': 'True'}). \
-                    where(db.recipe.c.recipe_id == recipe_id)
-                result = await conn.fetch(query)
+                query = select(db.recipe) \
+                    .where(db.recipe.c.recipe_id == recipe_id)
+                result = await conn.fetchrow(query)
 
-                return {"message": "success"}, 204
-            else:
-                return {"message": "There is not recipe with such id"}, 404
+                if result is not None:
+                    query = update(db.recipe). \
+                        values({'status': 'True'}). \
+                        where(db.recipe.c.recipe_id == recipe_id)
+                    result = await conn.fetch(query)
+
+                    return {"message": "success"}, 204
+                else:
+                    return {"message": "There is not recipe with such id"}, 404
+        else:
+            return {"message": "only admin can do this"},
     else:
         return {"message": "You need login before this"}, 405
 
@@ -208,24 +215,28 @@ async def unblock_user(request):
     session = await aiohttp_session.get_session(request)
 
     if 'username' in session:
-        async with request.app['db'].acquire() as conn:
-            form = await request.post()
-            user_id = form['user']
+        if is_admin(request, session.get('username')):
 
-            query = select(db.user) \
-                .where(db.user.c.user_id == user_id)
-            result = await conn.fetchrow(query)
+            async with request.app['db'].acquire() as conn:
+                form = await request.post()
+                user_id = form['user']
 
-            if result is not None:
-                query = update(db.user). \
-                    values({'status': 'False'}). \
-                    where(db.user.c.user_id == user_id)
+                query = select(db.user) \
+                    .where(db.user.c.user_id == user_id)
+                result = await conn.fetchrow(query)
 
-                await conn.fetch(query)
+                if result is not None:
+                    query = update(db.user). \
+                        values({'status': 'False'}). \
+                        where(db.user.c.user_id == user_id)
 
-                return {"message": "success"}, 204
-            else:
-                return {"message": "There is not user with such id"}, 404
+                    await conn.fetch(query)
+
+                    return {"message": "success"}, 204
+                else:
+                    return {"message": "There is not user with such id"}, 404
+        else:
+            return {"message": "only admin can do this"},
     else:
         return {"message": "You need login before this"}, 405
 
@@ -234,23 +245,34 @@ async def block_user(request):
     session = await aiohttp_session.get_session(request)
 
     if 'username' in session:
+        if is_admin(request, session.get('username')):
 
-        async with request.app['db'].acquire() as conn:
-            form = await request.post()
-            user_id = form['user']
+            async with request.app['db'].acquire() as conn:
+                form = await request.post()
+                user_id = form['user']
 
-            query = select(db.user) \
-                .where(db.user.c.user_id == user_id)
-            result = await conn.fetchrow(query)
+                query = select(db.user) \
+                    .where(db.user.c.user_id == user_id)
+                result = await conn.fetchrow(query)
 
-            if result is not None:
-                query = update(db.user). \
-                    values({'status': 'True'}). \
-                    where(db.user.c.user_id == user_id)
-                result = await conn.fetch(query)
+                if result is not None:
+                    query = update(db.user). \
+                        values({'status': 'True'}). \
+                        where(db.user.c.user_id == user_id)
+                    result = await conn.fetch(query)
 
-                return {"message": "success"}, 204
-            else:
-                return {"message": "There is not user with such id"}, 404
+                    return {"message": "success"}, 204
+                else:
+                    return {"message": "There is not user with such id"}, 404
+        else:
+            return {"message": "only admin can do this"},
     else:
         return {"message": "You need login before this"}, 405
+
+
+def is_admin(request, username):
+    is_admin_flag = False
+    for admin_login in request.app['admin']:
+        if username == admin_login:
+            is_admin_flag = True
+    return is_admin_flag

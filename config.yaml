@@ -1,2 +1,3 @@
 site_name: recipes
 DATABASE_URI: postgresql://user:user@localhost:5432/recipes_db
+ADMIN: admin gosha yasha
