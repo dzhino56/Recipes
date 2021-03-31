@@ -26,7 +26,7 @@ recipe = Table(
 )
 
 
-def get_best_users(request):
+async def get_best_users(request):
     async with request.app['db'].acquire() as conn:
         query = select([recipe.c.author, func.count()]). \
             group_by(recipe.c.author). \
@@ -34,7 +34,7 @@ def get_best_users(request):
         return await conn.fetch(query)
 
 
-def create_recipe(request, author, recipe_name, info, cooking_steps, food_type, hashtag_set):
+async def create_recipe(request, author, recipe_name, info, cooking_steps, food_type, hashtag_set):
     async with request.app['db'].acquire() as conn:
         query = insert(recipe). \
             values(author=author, recipe_name=recipe_name,
@@ -43,7 +43,7 @@ def create_recipe(request, author, recipe_name, info, cooking_steps, food_type, 
         await conn.fetch(query)
 
 
-def get_recipes(request):
+async def get_recipes(request):
     async with request.app['db'].acquire() as conn:
         query = select([recipe.c.recipe_id,
                         recipe.c.author,
@@ -60,16 +60,20 @@ def get_recipes(request):
         return await conn.fetch(query)
 
 
-def get_recipe_by_id(request, recipe_id):
+async def get_recipe_by_id(request, recipe_id):
     async with request.app['db'].acquire() as conn:
         query = select([recipe]). \
             where(recipe.c.recipe_id == recipe_id)
         return await conn.fetchrow(query)
 
 
-def change_recipe_status(request, recipe_id, status):
+async def change_recipe_status(request, recipe_id, status):
     async with request.app['db'].acquire() as conn:
         query = update(recipe). \
             values({'status': status}). \
             where(recipe.c.recipe_id == recipe_id)
         await conn.fetch(query)
+
+
+async def has_recipe(request, recipe_id):
+    return await get_recipe_by_id(request, recipe_id) is not None

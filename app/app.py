@@ -5,7 +5,8 @@ from sqlalchemy.schema import DropTable
 from sqlalchemy.schema import CreateTable
 
 from .routes import setup_routes
-from .model import db
+from .model import recipe_table
+from .model import user_table
 
 
 async def create_app(config: dict):
@@ -26,7 +27,7 @@ async def delete_tables(app, tables):
 
 
 async def prepare_tables(app):
-    tables = [db.user, db.recipe]
+    tables = [user_table, recipe_table]
     # await delete_tables(app, tables)
     async with app['db'].acquire() as conn:
         for table in tables:

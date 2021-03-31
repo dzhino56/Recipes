@@ -16,26 +16,26 @@ user = Table(
 )
 
 
-def get_by_nickname(request, nickname):
+async def get_by_nickname(request, nickname):
     async with request.app['db'].acquire() as conn:
         query = select(user).where(user.c.nickname == nickname)
         return await conn.fetchrow(query)
 
 
-def get_profile(request, user_id):
+async def get_profile(request, user_id):
     async with request.app['db'].acquire() as conn:
         query = select([user.c.user_id, user.c.nickname, user.c.status]) \
             .where(user.c.user_id == user_id)
         return await conn.fetchrow(query)
 
 
-def create_user(request, nickname):
+async def create_user(request, nickname):
     async with request.app['db'].acquire() as conn:
         query = insert(user).values({'nickname': nickname})
         await conn.execute(query)
 
 
-def change_user_status(request, nickname, status):
+async def change_user_status(request, nickname, status):
     async with request.app['db'].acquire() as conn:
         query = update(user). \
             values({'status': status}). \
@@ -44,5 +44,5 @@ def change_user_status(request, nickname, status):
         await conn.fetch(query)
 
 
-def has_user(request, nickname):
-    return get_by_nickname(request, nickname) is not None
+async def has_user(request, nickname):
+    return await get_by_nickname(request, nickname) is not None
