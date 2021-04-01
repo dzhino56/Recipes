@@ -24,3 +24,5 @@ typing-extensions==3.7.4.3
 WTForms==2.3.3
 yarl==1.6.3
 zipp==3.4.1
+
+jsonpickle~=2.0.0

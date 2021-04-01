@@ -27,6 +27,7 @@ Subsequent response definitions will only detail the expected value of the 'data
 **Response**
 
 - '200 OK' on success
+- '401 Unauthorized' if user is unauthorized
 
 '''json
 [
@@ -62,7 +63,6 @@ Subsequent response definitions will only detail the expected value of the 'data
 
 **Arguments**
 
-- '"author": int' unique identifier of user which is creating recipe
 - '"recipe_name": string' name of recipe
 - '"info": string' short description of recipe
 - '"cooking_steps": string' description how to cook this dish
@@ -72,6 +72,7 @@ Subsequent response definitions will only detail the expected value of the 'data
 **Response**
 
 - '201 CREATED' on success
+- '401 Unauthorized' if user is unauthorized
 
 
 ### Lookup recipe details
@@ -88,6 +89,7 @@ Subsequent response definitions will only detail the expected value of the 'data
 
 - '404 Not Found' if the recipe does not exist
 - '200 OK' on success
+- '401 Unauthorized' if user is unauthorized
 
 '''json
 {
@@ -119,6 +121,8 @@ Subsequent response definitions will only detail the expected value of the 'data
 
 - '404 Not Found' if the recipe does not exist
 - '204 No Content' on success
+- '401 Unauthorized' if user is unauthorized
+- '403 Forbidden' if user does not have admin permission
 
 
 ### Unblock recipe
@@ -135,6 +139,8 @@ Subsequent response definitions will only detail the expected value of the 'data
 
 - '404 Not Found' if the recipe does not exist
 - '204 No Content' on success
+- '401 Unauthorized' if user is unauthorized
+- '403 Forbidden' if user does not have admin permission
 
 
 ### Block User
@@ -151,6 +157,8 @@ Subsequent response definitions will only detail the expected value of the 'data
 
 - '404 Not Found' if the user does not exist
 - '204 No Content' on success
+- '401 Unauthorized' if user is unauthorized
+- '403 Forbidden' if user does not have admin permission
 
 
 ### Unblock User
@@ -167,6 +175,8 @@ Subsequent response definitions will only detail the expected value of the 'data
 
 - '404 Not Found' if the user does not exist
 - '204 No Content' on success
+- '401 Unauthorized' if user is unauthorized
+- '403 Forbidden' if user does not have admin permission
 
 
 ### Lookup details user profile
@@ -177,12 +187,13 @@ Subsequent response definitions will only detail the expected value of the 'data
 
 **Arguments**
 
-- '"user_id": int' unique identifier of user
+- '"nickname": string' unique username
 
 **Response**
 
 - '404 Not Found' if the user does not exist
 - '200 OK' on success
+- '401 Unauthorized' if user is unauthorized
 
 '''json
 {
@@ -202,6 +213,7 @@ Subsequent response definitions will only detail the expected value of the 'data
 **Response**
 
 - '200 OK' on success
+- '401 Unauthorized' if user is unauthorized
 
 '''json
 [
@@ -228,13 +240,41 @@ Subsequent response definitions will only detail the expected value of the 'data
 
 **Arguments**
 
-- '"nickname": string' unique identifier of user
+- '"nickname": string' unique username 
 
 **Response**
 
 - '201 Created' on success
 - '409 Conflict' if nickname exists in database
 
+
+### Login
+
+**Definition**
+
+'POST /users/login'
+
+**Arguments**
+
+- '"nickname": string' unique username 
+
+**Response**
+
+- '204 No Content' on success
+- '404 Not Found' if nickname does not exist in database
+- '405 Method Not Allowed' if user is logged in before
+
+
+### Logout
+
+**Definition**
+
+'POST /users/logout'
+
+**Response**
+
+- '204 No Content' on success
+- '401 Unauthorized' if user is unauthorized
 
 
 
