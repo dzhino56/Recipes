@@ -22,10 +22,10 @@ async def get_by_nickname(request, nickname):
         return await conn.fetchrow(query)
 
 
-async def get_profile(request, user_id):
+async def get_profile(request, nickname):
     async with request.app['db'].acquire() as conn:
         query = select([user.c.user_id, user.c.nickname, user.c.status]) \
-            .where(user.c.user_id == user_id)
+            .where(user.c.nickname == nickname)
         return await conn.fetchrow(query)
 
 
@@ -35,14 +35,30 @@ async def create_user(request, nickname):
         await conn.execute(query)
 
 
-async def change_user_status(request, nickname, status):
+async def change_user_status(request, user_id, status):
     async with request.app['db'].acquire() as conn:
         query = update(user). \
             values({'status': status}). \
-            where(user.c.nickname == nickname)
+            where(user.c.user_id == user_id)
 
         await conn.fetch(query)
 
 
 async def has_user(request, nickname):
     return await get_by_nickname(request, nickname) is not None
+
+
+async def get_ID_by_nickname(request, nickname):
+    async with request.app['db'].acquire() as conn:
+        query = select(user.c.user_id).where(user.c.nickname == nickname)
+        return await conn.fetchrow(query)
+
+
+async def get_by_id(request, user_id):
+    async with request.app['db'].acquire() as conn:
+        query = select(user).where(user.c.user_id == user_id)
+        return await conn.fetchrow(query)
+
+
+async def has_user_id(request, user_id):
+    return await get_by_id(request, user_id) is not None

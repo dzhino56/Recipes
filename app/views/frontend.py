@@ -1,5 +1,6 @@
 import aiohttp_session
 from aiohttp import web
+import jsonpickle
 
 from ..model import recipe_table, user_table
 
@@ -43,7 +44,7 @@ async def get_user_profile(request):  # TODO: Доделать показ про
         profile = await user_table.get_profile(request, request.query['nickname'])
 
         if profile is not None:
-            return web.json_response({"message": "success", "data": profile}, status=200)
+            return web.json_response({"message": "success", "data": jsonpickle.encode(profile)}, status=200)
         else:
             return web.json_response({"message": "There is not user with such nickname"}, status=404)
     else:
@@ -55,28 +56,22 @@ async def get_first_ten_users(request):
 
     if 'username' in session:
         best_users = await recipe_table.get_best_users(request)
-        return web.json_response({"message": "success", "data": best_users}, status=200)
+        return web.json_response({"message": "success", "data": jsonpickle.encode(best_users)}, status=200)
 
     else:
         return web.json_response({"message": "You need login before this"}, status=401)
 
 
 async def registration(request):
-    session = await aiohttp_session.get_session(request)
+    form = await request.post()
+    nickname = form['nickname']
 
-    if 'username' not in session:
-        form = await request.post()
-        nickname = form['nickname']
-
-        if not user_table.has_user(request, nickname):
-            await user_table.create_user(request, nickname)
-            return web.json_response({"message": "User was created successfully"}, status=201)
-
-        else:
-            return web.json_response({"message": "Such user exists"}, status=409)
+    if not await user_table.has_user(request, nickname):
+        await user_table.create_user(request, nickname)
+        return web.json_response({"message": "User was created successfully"}, status=201)
 
     else:
-        return web.json_response({"message": "You need login before this"}, status=401)
+        return web.json_response({"message": "Such user exists"}, status=409)
 
 
 async def add_recipe(request):
@@ -84,7 +79,7 @@ async def add_recipe(request):
 
     if 'username' in session:
         nickname = session.get('username')
-        author = await user_table.get_by_nickname(request, nickname)
+        author = await user_table.get_ID_by_nickname(request, nickname)
 
         form = await request.post()
         recipe_name = form['recipe_name']
@@ -105,7 +100,7 @@ async def get_recipes_list(request):  # TODO: Добавить пагинаци�
 
     if 'username' in session:
         recipes = await recipe_table.get_recipes(request)
-        return web.json_response({"message": "Success", "data": recipes}, status=200)
+        return web.json_response({"message": "Success", "data": jsonpickle.encode(recipes)}, status=200)
 
     else:
         return web.json_response({"message": "You need login before this"}, status=401)
@@ -120,7 +115,7 @@ async def get_recipe(request):  # TODO: Добавить данные польз
         if recipe is None:
             return web.json_response({"message": "There is not such recipe"}, status=404)
         else:
-            return web.json_response({"message": "success", "data": recipe}, status=200)
+            return web.json_response({"message": "success", "data": jsonpickle.encode(recipe)}, status=200)
     else:
         return web.json_response({"message": "You need login before this"}, status=401)
 
@@ -153,7 +148,7 @@ async def unblock_recipe(request):
     if 'username' in session:
         if is_admin(request, session.get('username')):
             form = await request.post()
-            recipe_id = form['recipe']
+            recipe_id = int(form['recipe'])
 
             if await recipe_table.has_recipe(request, recipe_id):
                 await recipe_table.change_recipe_status(request, recipe_id, status=True)
@@ -175,10 +170,10 @@ async def unblock_user(request):
     if 'username' in session:
         if is_admin(request, session.get('username')):
             form = await request.post()
-            nickname = form['nickname']
+            user_id = int(form['user_id'])
 
-            if user_table.has_user(request, nickname):
-                await user_table.change_user_status(request, nickname, status=True)
+            if await user_table.has_user_id(request, user_id):
+                await user_table.change_user_status(request, user_id, status=True)
                 return web.json_response({"message": "success"}, status=204)
 
             else:
@@ -197,10 +192,10 @@ async def block_user(request):
 
         if is_admin(request, session.get('username')):
             form = await request.post()
-            nickname = form['nickname']
+            user_id = int(form['user_id'])
 
-            if user_table.has_user(request, nickname):
-                await user_table.change_user_status(request, nickname, status=False)
+            if await user_table.has_user_id(request, user_id):
+                await user_table.change_user_status(request, user_id, status=False)
                 return web.json_response({"message": "success"}, status=204)
 
             else:
