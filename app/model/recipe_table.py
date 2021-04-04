@@ -26,16 +26,16 @@ recipe = Table(
 )
 
 
-async def get_best_users(request):
-    async with request.app['db'].acquire() as conn:
+async def get_best_users(pool):
+    async with pool.acquire() as conn:
         query = select([recipe.c.author, func.count()]). \
             group_by(recipe.c.author). \
             order_by(func.count()).limit(10)
         return await conn.fetch(query)
 
 
-async def create_recipe(request, author, recipe_name, info, cooking_steps, food_type, hashtag_set):
-    async with request.app['db'].acquire() as conn:
+async def create_recipe(pool, author, recipe_name, info, cooking_steps, food_type, hashtag_set):
+    async with pool.acquire() as conn:
         query = insert(recipe). \
             values(author=author, recipe_name=recipe_name,
                    info=info, cooking_steps=cooking_steps,
@@ -43,8 +43,8 @@ async def create_recipe(request, author, recipe_name, info, cooking_steps, food_
         await conn.fetch(query)
 
 
-async def get_recipes(request):
-    async with request.app['db'].acquire() as conn:
+async def get_recipes(pool):
+    async with pool.acquire() as conn:
         query = select([recipe.c.recipe_id,
                         recipe.c.author,
                         recipe.c.datetime,
@@ -60,20 +60,20 @@ async def get_recipes(request):
         return await conn.fetch(query)
 
 
-async def get_recipe_by_id(request, recipe_id):
-    async with request.app['db'].acquire() as conn:
+async def get_recipe_by_id(pool, recipe_id):
+    async with pool.acquire() as conn:
         query = select([recipe]). \
             where(recipe.c.recipe_id == recipe_id)
         return await conn.fetchrow(query)
 
 
-async def change_recipe_status(request, recipe_id, status):
-    async with request.app['db'].acquire() as conn:
+async def change_recipe_status(pool, recipe_id, status):
+    async with pool.acquire() as conn:
         query = update(recipe). \
             values({'status': status}). \
             where(recipe.c.recipe_id == recipe_id)
         await conn.fetch(query)
 
 
-async def has_recipe(request, recipe_id):
-    return await get_recipe_by_id(request, recipe_id) is not None
+async def has_recipe(pool, recipe_id):
+    return await get_recipe_by_id(pool, recipe_id) is not None

@@ -28,7 +28,7 @@ async def delete_tables(app, tables):
 
 async def prepare_tables(app):
     tables = [user_table, recipe_table]
-    # await delete_tables(app, tables)
+    await delete_tables(app, tables)
     async with app['db'].acquire() as conn:
         for table in tables:
             create_expr = CreateTable(table)

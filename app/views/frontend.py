@@ -18,7 +18,7 @@ async def login(request):
     form = await request.post()
     nickname = form['login']
 
-    if await user_table.has_user(request, nickname):
+    if await user_table.has_user(request.app['db'], nickname):
         session["username"] = nickname
         return web.json_response({"message": "Success"}, status=204)
 
@@ -41,7 +41,7 @@ async def get_user_profile(request):  # TODO: Доделать показ про
     session = await aiohttp_session.get_session(request)
 
     if 'username' in session:
-        profile = await user_table.get_profile(request, request.query['nickname'])
+        profile = await user_table.get_profile(request.app['db'], request.query['nickname'])
 
         if profile is not None:
             return web.json_response({"message": "success", "data": jsonpickle.encode(profile)}, status=200)
@@ -55,7 +55,7 @@ async def get_first_ten_users(request):
     session = await aiohttp_session.get_session(request)
 
     if 'username' in session:
-        best_users = await recipe_table.get_best_users(request)
+        best_users = await recipe_table.get_best_users(request.app['db'])
         return web.json_response({"message": "success", "data": jsonpickle.encode(best_users)}, status=200)
 
     else:
@@ -66,8 +66,8 @@ async def registration(request):
     form = await request.post()
     nickname = form['nickname']
 
-    if not await user_table.has_user(request, nickname):
-        await user_table.create_user(request, nickname)
+    if not await user_table.has_user(request.app['db'], nickname):
+        await user_table.create_user(request.app['db'], nickname)
         return web.json_response({"message": "User was created successfully"}, status=201)
 
     else:
@@ -79,7 +79,7 @@ async def add_recipe(request):
 
     if 'username' in session:
         nickname = session.get('username')
-        author = await user_table.get_ID_by_nickname(request, nickname)
+        author = await user_table.get_ID_by_nickname(request.app['db'], nickname)
 
         form = await request.post()
         recipe_name = form['recipe_name']
@@ -88,7 +88,7 @@ async def add_recipe(request):
         food_type = form['food_type']
         hashtag_set = form['hashtag_set']
 
-        await recipe_table.create_recipe(request, author, recipe_name, info, cooking_steps, food_type, hashtag_set)
+        await recipe_table.create_recipe(request.app['db'], author, recipe_name, info, cooking_steps, food_type, hashtag_set)
         return web.json_response({"message": "recipe was created successfully"}, status=201)
 
     else:
@@ -99,7 +99,7 @@ async def get_recipes_list(request):  # TODO: Добавить пагинаци�
     session = await aiohttp_session.get_session(request)
 
     if 'username' in session:
-        recipes = await recipe_table.get_recipes(request)
+        recipes = await recipe_table.get_recipes(request.app['db'])
         return web.json_response({"message": "Success", "data": jsonpickle.encode(recipes)}, status=200)
 
     else:
@@ -111,7 +111,7 @@ async def get_recipe(request):  # TODO: Добавить данные польз
 
     if 'username' in session:
         recipe_id = int(request.query['recipe'])
-        recipe = await recipe_table.get_recipe_by_id(request, recipe_id)
+        recipe = await recipe_table.get_recipe_by_id(request.app['db'], recipe_id)
         if recipe is None:
             return web.json_response({"message": "There is not such recipe"}, status=404)
         else:
@@ -128,8 +128,8 @@ async def block_recipe(request):
             form = await request.post()
             recipe_id = int(form['recipe'])
 
-            if await recipe_table.has_recipe(request, recipe_id):
-                await recipe_table.change_recipe_status(request, recipe_id, status=False)
+            if await recipe_table.has_recipe(request.app['db'], recipe_id):
+                await recipe_table.change_recipe_status(request.app['db'], recipe_id, status=False)
                 return web.json_response({"message": "success"}, status=204)
 
             else:
@@ -150,8 +150,8 @@ async def unblock_recipe(request):
             form = await request.post()
             recipe_id = int(form['recipe'])
 
-            if await recipe_table.has_recipe(request, recipe_id):
-                await recipe_table.change_recipe_status(request, recipe_id, status=True)
+            if await recipe_table.has_recipe(request.app['db'], recipe_id):
+                await recipe_table.change_recipe_status(request.app['db'], recipe_id, status=True)
                 return web.json_response({"message": "success"}, status=204)
 
             else:
@@ -172,8 +172,8 @@ async def unblock_user(request):
             form = await request.post()
             user_id = int(form['user_id'])
 
-            if await user_table.has_user_id(request, user_id):
-                await user_table.change_user_status(request, user_id, status=True)
+            if await user_table.has_user_id(request.app['db'], user_id):
+                await user_table.change_user_status(request.app['db'], user_id, status=True)
                 return web.json_response({"message": "success"}, status=204)
 
             else:
@@ -194,8 +194,8 @@ async def block_user(request):
             form = await request.post()
             user_id = int(form['user_id'])
 
-            if await user_table.has_user_id(request, user_id):
-                await user_table.change_user_status(request, user_id, status=False)
+            if await user_table.has_user_id(request.app['db'], user_id):
+                await user_table.change_user_status(request.app['db'], user_id, status=False)
                 return web.json_response({"message": "success"}, status=204)
 
             else:
